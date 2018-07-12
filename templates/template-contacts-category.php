@@ -132,10 +132,10 @@
 
 	@media screen and ( max-width: 991px ) {
 		.single-contact .inner-bottom {
-			 width: calc(100% - 150px);
+			 width: 100%;
 		}
 		.single-contact .inner-top {
-			width: 150px;
+			width: 100%;
 		}
 	}
 	@media screen and ( max-width: 600px ) {
