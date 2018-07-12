@@ -53,7 +53,7 @@
 <style>
 	.single-contact {
 	    margin-bottom: 25px;
-	    padding: 0 0 20px 0;
+	    padding: 0;
 	    border: 1px solid #f1f0f0;
 	    display: flex;
 	    flex-wrap: wrap;
@@ -130,7 +130,7 @@
 		padding: 0 15px;
 	}
 
-	@media and ( max-width: 991px ) {
+	@media screen and ( max-width: 991px ) {
 		.single-contact .inner-bottom {
 			 width: calc(100% - 150px);
 		}
@@ -138,7 +138,7 @@
 			width: 150px;
 		}
 	}
-	@media and ( max-width: 600px ) {
+	@media screen and ( max-width: 600px ) {
 		.contact-type-list .column {
 			width: 100%;
 		}

@@ -254,7 +254,7 @@ class SearchUsefulContacts {
 
            } else {
 
-              $status = 'draft';
+              $status = 'pending review';
 
            }
 
