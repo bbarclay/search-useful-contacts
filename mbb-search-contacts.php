@@ -2,7 +2,7 @@
 
 
 /**
-*  Plugin Name: MBB Search Contacts
+*  Plugin Name: Business Blueprint Search Contacts
 *  Plugin URI: businessblueprint.com.au
 *  Description: Search Useful Contacts
 *
