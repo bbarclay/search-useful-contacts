@@ -5,14 +5,6 @@
 class UsefulContactsPublic
 {
 
-	  public function __construct() 
-	  {
-
-	  	 add_shortcode( 'suc_for_approval', array( $this, 'show_pending_contacts') );
-	  	 add_shortcode( 'suc_category', array($this, 'shortcode_contact_category') );
-	  }
-
-
     /**
     * Display form using shortcode [suc_form]
     *
@@ -21,7 +13,7 @@ class UsefulContactsPublic
     public function shortcode_contact_category( $atts ) {
 
 
-	      ob_start();
+	      
 
   	      $atts = shortcode_atts(
 	            array(
@@ -31,15 +23,17 @@ class UsefulContactsPublic
 	            'suc_category');
 
 	      $category = $atts['category'];
+		
 
+		ob_start();
 
-	      $posts = $this->get_publish_contacts( $category );
+	    $posts = $this->get_publish_contacts( $category );
 
-	      require_once SUC_PLUGIN_PATH . '/templates/template-contacts-category.php';
+	    require_once SUC_PLUGIN_PATH . '/templates/template-contacts-category.php';
 
-	      $content = ob_get_clean();
-
-	      return $content;
+		$output_string = ob_get_contents();
+		if (ob_get_contents()) ob_end_clean();
+		return $output_string;
 
     }
 
@@ -58,9 +52,9 @@ class UsefulContactsPublic
 
         require_once SUC_PLUGIN_PATH . 'templates/template-for-approval.php';
 
-	 	$content = ob_get_clean();
-
-	 	return $content;
+		$output_string = ob_get_contents();
+		if (ob_get_contents()) ob_end_clean();
+		return $output_string;
 
 	 }
 

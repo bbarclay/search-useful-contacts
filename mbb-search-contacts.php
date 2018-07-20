@@ -29,7 +29,6 @@ class SearchUsefulContacts {
         add_action( 'wp_ajax_nopriv_query_contact', array( $this, 'query_contact' ));
         add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes'));
         add_action( 'save_post', array( $this, 'save_contacts_meta'), 10, 2 );
-        add_shortcode( 'suc_form', array($this, 'shortcode_form') );
 
         // Add contact on Frontend
         add_action( 'wp_ajax_suc_add_contact', array( $this, 'suc_add_contact' ));
@@ -212,9 +211,9 @@ class SearchUsefulContacts {
 
       require_once SUC_PLUGIN_PATH . '/templates/template-form.php';
 
-      $content = ob_get_clean();
-
-      return $content;
+      $output_string = ob_get_contents();
+      if (ob_get_contents()) ob_end_clean();
+      return $output_string;
 
    }
 
@@ -325,9 +324,9 @@ class SearchUsefulContacts {
 
         include( 'templates/email-for-approval.php' );
 
-        $message = ob_get_contents();
-
+      $output_string = ob_get_contents();
       ob_end_clean();
+      return $output_string;
 
       $headers = array('Content-Type: text/html; charset=UTF-8');
      
@@ -529,6 +528,11 @@ function run_suc() {
 	$search->run();
   $search->load_dependencies();
 
+  add_shortcode( 'suc_form', array($search, 'shortcode_form') );
+
   $contact = new UsefulContactsPublic();
+
+  add_shortcode( 'suc_for_approval', array( $contact, 'show_pending_contacts') );
+  add_shortcode( 'suc_category', array($contact, 'shortcode_contact_category') );
 }
 run_suc();
