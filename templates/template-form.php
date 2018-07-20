@@ -23,7 +23,7 @@ $msg_id = substr($msg_id, 0, 1 );
       ?>
       <form method="post" action="<?php echo esc_url( admin_url('admin-ajax.php') ) ?>" enctype="multipart/form-data">
             <input type="hidden" value="suc_add_contact" name="action" />
-
+            <?php wp_nonce_field('suc_action','suc_field') ?>
             <div class="row">
                  <div class="col-sm-6">
                         <div class="form-group">

@@ -220,10 +220,11 @@ class SearchUsefulContacts {
 
    public function suc_add_contact() {
             
+
            // Avoid CSRF
-           if( ! check_ajax_referer('suc_security_action', 'suc_security_field') )
+           if( ! isset( $_POST['suc_field'] ) || ! wp_verify_nonce($_REQUEST['suc_field'], 'suc_action') )
            {
-               wp_send_json_error( array('error' => 'security') ); 
+              die('Sorry wp nonce is not verified');
            }
 
            if( ! current_user_can('subscriber') && ! current_user_can('administrator') ) 
