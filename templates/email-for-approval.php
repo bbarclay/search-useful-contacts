@@ -389,6 +389,9 @@
     p.center {
       text-align: center;
     }
+    .button {
+       color: #fff !important;
+    }
     </style>
   </head>
      <body>
@@ -440,7 +443,7 @@
                                       <table border="0" cellspacing="0" cellpadding="0">
                                         <tr>
                                           <td>
-                                            <a href="<?php echo $url ; ?>" class="button button--green" target="_blank">Link to approve</a>
+                                            <a href="<?php echo $url ; ?>" class="button button--green" target="_blank">Click here to approve</a>
                                           </td>
                                         </tr>
                                       </table>

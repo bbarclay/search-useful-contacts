@@ -348,8 +348,8 @@ class SearchUsefulContacts {
 
       $url = site_url() . '/contact-to-be-added';
 
-      $to = 'july@businessblueprint.com';
-      $subject = 'New contact recommendation by ' . $person;
+      $to = 'ivy@businessblueprint.com';
+      $subject = 'New contact recommendation';
 
       ob_start();
 
@@ -362,7 +362,8 @@ class SearchUsefulContacts {
       $message = $output_string;
 
       $headers = array('Content-Type: text/html; charset=UTF-8');
-      $headers[]  = 'Cc: ivy@businessblueprint.com';
+      $headers[]  = 'CC: dale@businessblueprint.com';
+      $headers[]  = 'CC: emma@businessblueprint.com';
 
       $is_send = wp_mail( $to, $subject, $message, $headers );
   
