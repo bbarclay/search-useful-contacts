@@ -414,17 +414,17 @@
                         <td class="content-cell">
                          
   
-                          <p><?php echo $person; ?> has added <?php echo $data['name'] ?> to the contact.</p>
+                          <p><?php echo $person; ?> has recommended <?php echo $data['name'] ?> to the useful contacts.</p>
 
                           <p>Details of the new contact :</p>
 
                           <div>
-                             <p><span>Company </span> <strong> <?php echo $data['company_name']; ?></strong><br>
-                             <span>Description </span> <strong><?php echo $data['description']; ?></strong><br>
-                             <span>Name </span> <strong><?php echo $data['name']; ?></strong><br>
-                             <span>Phone </span> <strong><?php echo $data['phone']; ?></strong><br>
-                             <span>Email </span> <strong><?php echo $data['email']; ?></strong><br>
-                             <span>website </span> <strong><?php echo $data['website']; ?></strong><br>
+                             <p><span>Company :</span> <strong> <?php echo $data['company_name']; ?></strong><br>
+                             <span>Description :</span> <strong><?php echo $data['description']; ?></strong><br>
+                             <span>Name :</span> <strong><?php echo $data['name']; ?></strong><br>
+                             <span>Phone :</span> <strong><?php echo $data['phone']; ?></strong><br>
+                             <span>Email :</span> <strong><?php echo $data['email']; ?></strong><br>
+                             <span>Website :</span> <strong><?php echo $data['website']; ?></strong><br>
                              </p>
 
                           </div>

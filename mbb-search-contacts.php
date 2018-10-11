@@ -10,16 +10,21 @@
 *  Author: Business Blueprint
 *  Text Domain: useful-contacts
 */
-if( ! defined('ABSPATH') ) {
-	exit();
-}
 
+if( ! defined('ABSPATH') ) {
+    die('Please do not load this file directly.');
+}
 
 define('SUC_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
+
+
 class SearchUsefulContacts {
 
-
+    /**
+     * Run all dependencies
+     * @return 
+     */
    public function run() {
 
         add_action('wp_enqueue_scripts', array( $this, 'register_scripts' ) );
@@ -38,15 +43,22 @@ class SearchUsefulContacts {
         add_action( 'wp_ajax_approve_contact', array( $this, 'approve_contact' ));
         add_action( 'wp_ajax_nopriv_approve_contact', array( $this, 'approve_contact' ));
 
+       add_action( 'wp_mail_failed', array( $this, 'onMailError'), 10, 1 );
+
    }
 
+   /**
+    * Load other file on public
+    * @return 
+    */
    public function load_dependencies() {
 
       require_once SUC_PLUGIN_PATH . 'public/class-useful-contacts-public.php';
    }
 
    /**
-    * Registers the event post type.
+    * Register Post Type
+    * @return 
     */
    function register_post_type() {
 
@@ -93,12 +105,14 @@ class SearchUsefulContacts {
          'not_found'          => __( 'No contact found' ),
          'not_found_in_trash' => __( 'No contact found in trash' )
       );
+
       $supports = array(
          'title',
          'editor',
          'thumbnail',
          'revisions',
       );
+
       $args = array(
          'labels'               => $labels,
          'supports'             => $supports,
@@ -112,13 +126,16 @@ class SearchUsefulContacts {
          'supports'             => array( 'title' ),
          'taxonomies'           => array( 'category','useful_contacts_cat'),
       );
+
       register_post_type( 'useful_contact_types', $args2 );
       register_post_type( 'useful_contacts', $args );
 
    }
 
-
-   public function add_meta_boxes() {
+  /**
+   * Add meta boxes to useful contacts
+   */
+  public function add_meta_boxes() {
 
       add_meta_box( 
          'metabox_display',
@@ -129,10 +146,14 @@ class SearchUsefulContacts {
          'default'
       );
 
-   }
+  }
 
+ /**
+  * Register Taxonomy
+  * @return [
+  */
+  public function register_taxonomy() { 
 
-  public function register_taxonomy() {  
       register_taxonomy(  
           'useful_contacts_cat', 
           'useful_contacts',       
@@ -148,9 +169,14 @@ class SearchUsefulContacts {
           )  
       ); 
       register_taxonomy_for_object_type( 'category', 'useful_contacts' ); 
+
   }  
 
-   public function metabox_display() {
+  /**
+   * Display Metavox on admin page
+   * @return html template
+   */
+  public function metabox_display() {
 
       global $post;
 
@@ -166,11 +192,14 @@ class SearchUsefulContacts {
 
 
       require_once SUC_PLUGIN_PATH . '/admin/inc/class-post-metadata.php';
-   }
+  }
 
 
    /**
-    * Save the metabox data
+    * Saving meta for useful contacts
+    * @param  [type] $post_id Post ID
+    * @param  [type] $post    
+    * @return   
     */
    function save_contacts_meta( $post_id, $post ) {
   
@@ -192,10 +221,6 @@ class SearchUsefulContacts {
 
       $this->post_meta_value( $contacts_meta, $post_id );
    }
-
-
-   //Frontend ============================
-    
 
 
    /**
@@ -283,19 +308,20 @@ class SearchUsefulContacts {
          //post meta value
          $this->post_meta_value( $contacts_meta, $post );
 
+
          //set terms of the post
          $terms = wp_set_post_terms( $post, array( $category ) );
 
-          if( $terms ) {
+          //send email to admin 
+          $is_send = $this->send_email( $person_recommended, $contacts_meta );
+
+
+          if( $is_send ) {
 
              if( wp_get_referer() ) 
              {
-                  //send email to admin 
-                  $this->send_email( $person_recommended, $contacts_meta );
-
                   $message_code = 1;
                   wp_safe_redirect( wp_get_referer() . '?msg=' . $message_code );
-
              }
              else 
              {
@@ -309,34 +335,51 @@ class SearchUsefulContacts {
           }
 
           die();  
-
    }
 
+
+   /**
+    * Send email after new contact is added
+    * @param  string $person Person Name 
+    * @param  array  $data   Use in the email template
+    * @return 
+    */
    public function send_email($person, $data = array() ) {
 
       $url = site_url() . '/contact-to-be-added';
 
       $to = 'july@businessblueprint.com';
-      $subject = 'New contact is added by ' . $person;
+      $subject = 'New contact recommendation by ' . $person;
 
       ob_start();
 
-        $GLOBALS["use_html_content_type"] = TRUE;
+      $GLOBALS["use_html_content_type"] = TRUE;
 
-        include( 'templates/email-for-approval.php' );
+      include_once SUC_PLUGIN_PATH . 'templates/email-for-approval.php';
 
       $output_string = ob_get_contents();
       ob_end_clean();
-      return $output_string;
+      $message = $output_string;
 
       $headers = array('Content-Type: text/html; charset=UTF-8');
-     
-      wp_mail( $to, $subject, $message, $headers );
-   }
+      $headers[]  = 'Cc: ivy@businessblueprint.com';
+
+      $is_send = wp_mail( $to, $subject, $message, $headers );
+  
+      if( $is_send ) {
+         return true;
+      } else {
+         return false;
+      }
+
+  }
 
 
-   // Handles Ajax Action Hook
-   public function query_contact() {
+ /**
+  * Show Contact list
+  * @return html  Html template
+  */
+  public function query_contact() {
 
    		$search = sanitize_text_field( $_POST['search'] );	
 
@@ -360,15 +403,16 @@ class SearchUsefulContacts {
 			          <div class="icon"></div><div class="search-result__contact">
 			            <div class="search-result__details">
 			                <h1 class="search-result__title">
-			                     <a href="<?php echo get_the_permalink(); ?>" target="_blank"><?php the_title(); ?></a></h1>
-			               <?php the_excerpt(); ?>     
-			            <footer class="search-result__footer">
-			              <div class="grid">
-			                 <div class="grid__column  grid__column--12">
-			                   <a href="<?php echo get_the_permalink(); ?>" class="search-result__more" target="_blank">View Contacts</a>
-			                </div>
-			              </div>
-			            </footer>
+			                     <a href="<?php echo get_the_permalink(); ?>" target="_blank"><?php the_title(); ?></a>
+                      </h1>
+  			              <?php the_excerpt(); ?>     
+    			            <footer class="search-result__footer">
+    			              <div class="grid">
+    			                 <div class="grid__column  grid__column--12">
+    			                   <a href="<?php echo get_the_permalink(); ?>" class="search-result__more" target="_blank">View Contacts</a>
+    			                </div>
+    			              </div>
+    			            </footer>
 			          </div>
 			        </div>
 		        </article>
@@ -383,7 +427,11 @@ class SearchUsefulContacts {
 
    }
 
-   public function approve_contact() {
+   /**
+    * Process contacts that needs approval
+    * @return 
+    */
+  public function approve_contact() {
 
         $id = (int)$_POST['id'];
         
@@ -416,11 +464,11 @@ class SearchUsefulContacts {
         }
         
         die();
-   }
+  }
 
 
-   //Register scripts
-   public function register_scripts() {
+  //Register scripts
+  public function register_scripts() {
          wp_enqueue_script('useful-contacts', plugins_url('js/result.js', __FILE__), array(), null, true  );
 
          wp_localize_script( 
@@ -428,15 +476,17 @@ class SearchUsefulContacts {
                'searchusefulcontacts_ajax', 
                array( 
                   'ajax_url' => admin_url('admin-ajax.php'),
-                  'security' => wp_nonce_field('suc_security', 'suc_security_field')
+                  'security' => wp_create_nonce('suc_security', 'suc_security_field')
 
                ) );
 
    }
 
 
-   // Helpers
-
+  /**
+   *  Get all categories
+   *  @return array
+   */
    public function get_category( ) {
 
          $post_categories =  get_terms( array('taxonomy' => 'category') );
@@ -445,7 +495,7 @@ class SearchUsefulContacts {
    }
 
    /**
-   * Show message
+   * Show error or success message
    *
    *  @return STRING
    */
@@ -459,7 +509,7 @@ class SearchUsefulContacts {
    }
 
    /**
-   * Check if user is authorize to post
+   *  Allow predefined users to post without admin's approval
    *
    *  @return boolean
    */
@@ -492,9 +542,12 @@ class SearchUsefulContacts {
    }
 
    /**
-   * Upload Post meta 
-   */
-   public function post_meta_value($contacts_meta = '', $post_id = '') {
+    * Store post meta for useful contacts
+    * @param  array  $contacts_meta all post meta from the form
+    * @param  string $post_id       Post id to where post meta will be added
+    * @return 
+    */
+   public function post_meta_value($contacts_meta = array(), $post_id = '') {
 
       if(!$contacts_meta)
             return "";
@@ -510,6 +563,7 @@ class SearchUsefulContacts {
          if ( get_post_meta( $post_id, $key, false ) ) {
            
             update_post_meta( $post_id, $key, $value );
+
          } else {
      
             add_post_meta( $post_id, $key, $value);
@@ -524,6 +578,10 @@ class SearchUsefulContacts {
 }
 
 
+/**
+ * Run all dependencies, settings and shortcode
+ * @return 
+ */
 function run_suc() {
 	$search = new SearchUsefulContacts();
 	$search->run();
