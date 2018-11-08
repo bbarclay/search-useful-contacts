@@ -27,7 +27,7 @@ class SearchUsefulContacts {
      */
    public function run() {
 
-        add_action('wp_enqueue_scripts', array( $this, 'register_scripts' ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
         add_action( 'init', array( $this, 'register_post_type' ) );
         add_action( 'init', array( $this, 'register_taxonomy' ) );
         add_action( 'wp_ajax_query_contact', array( $this, 'query_contact' ));
@@ -470,7 +470,7 @@ class SearchUsefulContacts {
 
   //Register scripts
   public function register_scripts() {
-         wp_enqueue_script('useful-contacts', plugins_url('js/result.js', __FILE__), array(), null, true  );
+         wp_register_script('useful-contacts', plugins_url('js/result.js', __FILE__), array(), null, true  );
 
          wp_localize_script( 
                'useful-contacts', 
@@ -480,6 +480,8 @@ class SearchUsefulContacts {
                   'security' => wp_create_nonce('suc_security', 'suc_security_field')
 
                ) );
+         
+         wp_enqueue_script('useful-contacts');
 
    }
 

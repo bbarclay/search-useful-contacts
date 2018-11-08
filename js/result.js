@@ -48,7 +48,7 @@ jQuery( document ).ready( function( $ ) {
                     data: {
                         action: 'approve_contact',
                         id: id,
-                        security: $('input[name="suc_security_field"]').val()
+                        security: searchusefulcontacts_ajax.security
                     },
                     success: function( data ) {
 
